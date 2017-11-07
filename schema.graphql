@@ -1,0 +1,178 @@
+# The `DateTime` scalar type represents a DateTime
+# value as specified by
+# [iso8601](https://en.wikipedia.org/wiki/ISO_8601).
+scalar DateTime
+
+input DeleteProductInput {
+  productId: String!
+  clientMutationId: String
+}
+
+# TODO: Delete multiple objects from a list of ID's
+# Product.objects.filter(id__in=(1,2)).delete()
+type DeleteProductPayload {
+  product: ProductNode
+  deleteCount: Int
+  clientMutationId: String
+}
+
+type Mutation {
+  saveOrg(input: SaveOrgInput!): SaveOrgPayload
+  saveProduct(input: SaveProductInput!): SaveProductPayload
+  deleteProduct(input: DeleteProductInput!): DeleteProductPayload
+}
+
+# An object with an ID
+interface Node {
+  # The ID of the object.
+  id: ID!
+}
+
+input OrgInput {
+  orgId: String
+  name: String!
+}
+
+type OrgNode implements Node {
+  # The ID of the object.
+  id: ID!
+  name: String!
+  admin: UserNode!
+  address: String!
+  createdDate: DateTime!
+  publishedDate: DateTime
+  products(before: String, after: String, first: Int, last: Int, id: ID, name: String, name_Icontains: String, name_Istartswith: String, org_Name_Icontains: String, org_Admin_Username_Icontains: String): ProductNodeConnection
+}
+
+type OrgNodeConnection {
+  pageInfo: PageInfo!
+  edges: [OrgNodeEdge]!
+}
+
+type OrgNodeEdge {
+  # The item at the end of the edge
+  node: OrgNode
+
+  # A cursor for use in pagination
+  cursor: String!
+}
+
+type PageInfo {
+  # When paginating forwards, are there more items?
+  hasNextPage: Boolean!
+
+  # When paginating backwards, are there more items?
+  hasPreviousPage: Boolean!
+
+  # When paginating backwards, the cursor to continue.
+  startCursor: String
+
+  # When paginating forwards, the cursor to continue.
+  endCursor: String
+}
+
+input ProductInput {
+  productId: String
+  name: String!
+  orgId: String!
+  description: String
+}
+
+type ProductNode implements Node {
+  # The ID of the object.
+  id: ID!
+  name: String!
+  org: OrgNode!
+  description: String!
+  orderPrice: Float!
+  sellPrice: Float!
+  createdDate: DateTime!
+  publishedDate: DateTime
+}
+
+type ProductNodeConnection {
+  pageInfo: PageInfo!
+  edges: [ProductNodeEdge]!
+}
+
+type ProductNodeEdge {
+  # The item at the end of the edge
+  node: ProductNode
+
+  # A cursor for use in pagination
+  cursor: String!
+}
+
+type Query {
+  allUsers(before: String, after: String, first: Int, last: Int, id: ID): UserNodeConnection
+  allOrgs(before: String, after: String, first: Int, last: Int, id: ID): OrgNodeConnection
+
+  # The ID of the object
+  viewer(id: ID!): UserNode
+
+  # The ID of the object
+  org(id: ID!): OrgNode
+  allProducts(before: String, after: String, first: Int, last: Int, id: ID, name: String, name_Icontains: String, name_Istartswith: String, org_Name_Icontains: String, org_Admin_Username_Icontains: String): ProductNodeConnection
+}
+
+input SaveOrgInput {
+  orgData: OrgInput
+  clientMutationId: String
+}
+
+type SaveOrgPayload {
+  org: OrgNode
+  updated: Boolean
+  clientMutationId: String
+}
+
+input SaveProductInput {
+  productData: ProductInput
+  clientMutationId: String
+}
+
+# TODO: Django bulk create
+type SaveProductPayload {
+  product: ProductNode
+  org: OrgNode
+  updated: Boolean
+  clientMutationId: String
+}
+
+type UserNode implements Node {
+  # The ID of the object.
+  id: ID!
+  password: String!
+  lastLogin: DateTime
+
+  # Designates that this user has all permissions without explicitly assigning them.
+  isSuperuser: Boolean!
+
+  # Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.
+  username: String!
+  firstName: String!
+  lastName: String!
+  email: String!
+
+  # Designates whether the user can log into this admin site.
+  isStaff: Boolean!
+
+  # Designates whether this user should be treated as active. Unselect this instead of deleting accounts.
+  isActive: Boolean!
+  dateJoined: DateTime!
+  orgs(before: String, after: String, first: Int, last: Int, id: ID): OrgNodeConnection
+}
+
+type UserNodeConnection {
+  pageInfo: PageInfo!
+  edges: [UserNodeEdge]!
+}
+
+type UserNodeEdge {
+  # The item at the end of the edge
+  node: UserNode
+
+  # A cursor for use in pagination
+  cursor: String!
+}
+
